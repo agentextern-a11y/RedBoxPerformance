@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "NeuronDrive"
+version = "1.0.0"
+id = "artifacts/neurodrive"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18950
+
+[services.development]
+run = "pnpm --filter @workspace/neurodrive run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/neurodrive", "run", "build" ]
+publicDir = "artifacts/neurodrive/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18950"
+BASE_PATH = "/"

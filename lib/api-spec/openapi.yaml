@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: NeuronDrive API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: diagnostics
+    description: DTC diagnostics and fault analysis
+  - name: sessions
+    description: OBD driving sessions
+  - name: predict
+    description: Predictive maintenance
+  - name: maps
+    description: Stock ECU map vault
+  - name: vehicles
+    description: Vehicle registry
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +33,251 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      summary: List all registered vehicles
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vehicle"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      summary: Register a new vehicle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVehicleBody"
+      responses:
+        "201":
+          description: Vehicle created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+  /vehicles/{id}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      summary: Get a vehicle by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      summary: Delete a vehicle
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List all OBD sessions
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+    post:
+      operationId: createSession
+      tags: [sessions]
+      summary: Create a new OBD session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSessionBody"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+  /sessions/{id}:
+    get:
+      operationId: getSession
+      tags: [sessions]
+      summary: Get session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+  /sessions/summary:
+    get:
+      operationId: getSessionsSummary
+      tags: [sessions]
+      summary: Get aggregate session stats (total sessions, avg health, total km)
+      responses:
+        "200":
+          description: Session summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionSummary"
+
+  /diagnostics:
+    get:
+      operationId: listDiagnostics
+      tags: [diagnostics]
+      summary: List diagnostic results
+      parameters:
+        - name: vehicleId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Diagnostics list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Diagnostic"
+
+  /diagnostics/analyze:
+    post:
+      operationId: analyzeDtc
+      tags: [diagnostics]
+      summary: Analyze a DTC fault code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnalyzeDtcBody"
+      responses:
+        "200":
+          description: Diagnostic analysis
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Diagnostic"
+
+  /predict:
+    get:
+      operationId: listPredictions
+      tags: [predict]
+      summary: Get all component predictions for a vehicle
+      parameters:
+        - name: vehicleId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Predictions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prediction"
+
+  /maps:
+    get:
+      operationId: listMaps
+      tags: [maps]
+      summary: List all stock ECU maps in the vault
+      responses:
+        "200":
+          description: Maps list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EcuMap"
+    post:
+      operationId: createMap
+      tags: [maps]
+      summary: Register a new stock ECU map entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMapBody"
+      responses:
+        "201":
+          description: Map created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcuMap"
+
+  /maps/{id}:
+    get:
+      operationId: getMap
+      tags: [maps]
+      summary: Get a specific ECU map
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: ECU map details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EcuMap"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +285,227 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+        vin:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        engineCode:
+          type: string
+        mileageKm:
+          type: integer
+        healthScore:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, vin, make, model, year, mileageKm, healthScore, createdAt]
+
+    CreateVehicleBody:
+      type: object
+      properties:
+        vin:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        engineCode:
+          type: string
+        mileageKm:
+          type: integer
+      required: [vin, make, model, year, mileageKm]
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+        endedAt:
+          type: string
+          format: date-time
+          nullable: true
+        maxRpm:
+          type: integer
+          nullable: true
+        maxSpeedKmh:
+          type: integer
+          nullable: true
+        avgHealthScore:
+          type: number
+          nullable: true
+        distanceKm:
+          type: number
+          nullable: true
+        anomalyDetected:
+          type: boolean
+      required: [id, vehicleId, startedAt, anomalyDetected]
+
+    CreateSessionBody:
+      type: object
+      properties:
+        vehicleId:
+          type: integer
+        maxRpm:
+          type: integer
+        maxSpeedKmh:
+          type: integer
+        avgHealthScore:
+          type: number
+        distanceKm:
+          type: number
+        anomalyDetected:
+          type: boolean
+      required: [vehicleId, anomalyDetected]
+
+    SessionSummary:
+      type: object
+      properties:
+        totalSessions:
+          type: integer
+        avgHealthScore:
+          type: number
+        totalDistanceKm:
+          type: number
+        anomalyCount:
+          type: integer
+        recentSessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+      required: [totalSessions, avgHealthScore, totalDistanceKm, anomalyCount, recentSessions]
+
+    Diagnostic:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+          nullable: true
+        dtcCode:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        description:
+          type: string
+        rootCauses:
+          type: array
+          items:
+            type: string
+        repairSteps:
+          type: array
+          items:
+            type: string
+        estimatedCostMin:
+          type: integer
+          nullable: true
+        estimatedCostMax:
+          type: integer
+          nullable: true
+        resolvedAt:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, dtcCode, severity, description, rootCauses, repairSteps, createdAt]
+
+    AnalyzeDtcBody:
+      type: object
+      properties:
+        dtcCode:
+          type: string
+        vehicleId:
+          type: integer
+      required: [dtcCode]
+
+    Prediction:
+      type: object
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        component:
+          type: string
+        status:
+          type: string
+          enum: [good, watch, warning, critical]
+        kmUntilService:
+          type: integer
+        confidence:
+          type: number
+        lastCheckedAt:
+          type: string
+          format: date-time
+      required: [id, vehicleId, component, status, kmUntilService, confidence, lastCheckedAt]
+
+    EcuMap:
+      type: object
+      properties:
+        id:
+          type: integer
+        vin:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        calId:
+          type: string
+        description:
+          type: string
+          nullable: true
+        checksumHex:
+          type: string
+          nullable: true
+        sizeBytes:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, vin, make, model, year, calId, createdAt]
+
+    CreateMapBody:
+      type: object
+      properties:
+        vin:
+          type: string
+        make:
+          type: string
+        model:
+          type: string
+        year:
+          type: integer
+        calId:
+          type: string
+        description:
+          type: string
+        checksumHex:
+          type: string
+        sizeBytes:
+          type: integer
+      required: [vin, make, model, year, calId]
