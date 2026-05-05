@@ -2,6 +2,7 @@ import { Router } from "express";
 import { db, sessionsTable } from "@workspace/db";
 import { eq, avg, sum, count } from "drizzle-orm";
 import { CreateSessionBody, GetSessionParams, ListSessionsQueryParams } from "@workspace/api-zod";
+import { broadcast } from "../lib/wsServer";
 
 const router = Router();
 
@@ -24,6 +25,25 @@ router.post("/sessions", async (req, res) => {
     return;
   }
   const [session] = await db.insert(sessionsTable).values(parsed.data).returning();
+
+  if (parsed.data.anomalyDetected) {
+    broadcast({
+      type: "anomaly",
+      severity: "high",
+      message: `Anomaly detected — Max RPM: ${parsed.data.maxRpm ?? "N/A"} | Speed: ${parsed.data.maxSpeedKmh ?? "N/A"} km/h`,
+      data: { sessionId: session?.id },
+      timestamp: Date.now(),
+    });
+  } else {
+    broadcast({
+      type: "session_saved",
+      severity: "low",
+      message: `Session saved — Max RPM: ${parsed.data.maxRpm ?? "N/A"} | Speed: ${parsed.data.maxSpeedKmh ?? "N/A"} km/h`,
+      data: { sessionId: session?.id },
+      timestamp: Date.now(),
+    });
+  }
+
   res.status(201).json(session);
 });
 

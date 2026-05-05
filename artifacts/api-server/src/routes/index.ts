@@ -5,6 +5,7 @@ import sessionsRouter from "./sessions";
 import diagnosticsRouter from "./diagnostics";
 import predictionsRouter from "./predictions";
 import mapsRouter from "./maps";
+import liveMetricsRouter from "./liveMetrics";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(sessionsRouter);
 router.use(diagnosticsRouter);
 router.use(predictionsRouter);
 router.use(mapsRouter);
+router.use(liveMetricsRouter);
 
 export default router;
