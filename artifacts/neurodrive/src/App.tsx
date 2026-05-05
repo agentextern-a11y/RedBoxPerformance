@@ -47,33 +47,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Home() {
-  return (
-    <div className="flex-1 flex flex-col items-center justify-center py-20 px-4 text-center">
-      <h1 className="text-5xl md:text-7xl font-bold font-display uppercase tracking-tighter text-gray-900 mb-6">Engineered to Perform</h1>
-      <p className="text-xl text-muted-foreground max-w-2xl mb-10">NeuronDrive is the AI brain behind Red Box Performance. Connect directly to your car via Web Bluetooth, read live OBD data, and use AI to diagnose faults, predict failures, and coach performance.</p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-4xl">
-        <div className="bg-card border border-border p-6 rounded-lg text-center shadow-sm">
-          <div className="text-3xl font-bold text-primary font-display mb-1">+50-120</div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Horsepower</div>
-        </div>
-        <div className="bg-card border border-border p-6 rounded-lg text-center shadow-sm">
-          <div className="text-3xl font-bold text-primary font-display mb-1">15+</div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Live Parameters</div>
-        </div>
-        <div className="bg-card border border-border p-6 rounded-lg text-center shadow-sm">
-          <div className="text-3xl font-bold text-primary font-display mb-1">1000+</div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vehicles Tuned</div>
-        </div>
-        <div className="bg-card border border-border p-6 rounded-lg text-center shadow-sm">
-          <div className="text-3xl font-bold text-primary font-display mb-1">98%</div>
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Success Rate</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
+import Home from "@/pages/home";
 import Dashboard from "@/pages/dashboard";
 import Diagnostics from "@/pages/diagnostics";
 import Vehicles from "@/pages/vehicles";
